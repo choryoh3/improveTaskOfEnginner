@@ -15,6 +15,8 @@ describe('describeDatabaseUrl', () => {
       database: 'postgres',
       passwordHasBrackets: false,
       passwordIsEmpty: false,
+      passwordLength: 11,
+      passwordNonAlphanumeric: 0,
     })
     expect(JSON.stringify(result)).not.toContain('Sup3rSecret')
   })
