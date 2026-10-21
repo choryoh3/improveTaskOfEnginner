@@ -11,8 +11,10 @@ DB: dev=SQLite, prod=Supabase Postgres(`DB_TARGET=sqlite|postgres`)/ pnpm monore
 
 ## コマンド
 
-- `pnpm typecheck` / `pnpm lint` / `pnpm test` / `pnpm format`
+- `pnpm dev` / `pnpm build` / `pnpm typecheck` / `pnpm lint` / `pnpm test` / `pnpm format`
+- `pnpm test:e2e`(Playwright。先に `pnpm build`)/ `pnpm db:setup`(初回の DB 準備)
 - DB 生成・マイグレーションは `/db-migrate` skill に従う
+- 環境変数は `apps/web/.env.local` に一本化(Next.js と Prisma CLI の両方がここを読む)
 
 ## 構成と依存方向
 
@@ -31,7 +33,8 @@ DB: dev=SQLite, prod=Supabase Postgres(`DB_TARGET=sqlite|postgres`)/ pnpm monore
 4. 入力検証は zod(`@hono/zod-validator`)。スキーマは `packages/shared` に置く。
 5. ライブラリの API は実装前に公式ドキュメント/MCP で最新確認(記憶で書かない)。
 6. 外部に影響する操作は事前確認: GitHub 作成・push、本番 DB へのマイグレーション。Vercel デプロイはユーザーが手動。
-7. 完了報告の前に typecheck / lint / test を通す。UI 変更は Playwright MCP で確認する。
+7. 完了報告の前に typecheck / lint / test を通す。UI 変更は Playwright MCP(使えなければ `pnpm test:e2e` や Playwright を直接)で確認する。
+8. `src/` を使う構成なので、Next.js の `proxy.ts` は `apps/web/src/` に置く(`apps/web/` 直下だと無視され、認証が効かなくなる)。
 
 ## 詳細
 

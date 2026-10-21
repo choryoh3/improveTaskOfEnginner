@@ -6,12 +6,16 @@
     "node": ">=22"
   },
   "scripts": {
+    "dev": "pnpm --filter @app/web dev",
+    "build": "pnpm db:gen && pnpm --filter @app/web build",
     "typecheck": "pnpm -r --if-present typecheck",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run --passWithNoTests",
-    "db:gen": "pnpm --filter @app/db gen"
+    "test:e2e": "playwright test",
+    "db:gen": "pnpm --filter @app/db gen",
+    "db:setup": "pnpm db:gen && pnpm --filter @app/db migrate:deploy"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

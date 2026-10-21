@@ -9,6 +9,10 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      # ビルドと E2E スモークに必要なダミー値(実際の鍵は不要・CI に秘密情報は置かない)
+      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_dummy
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -18,12 +22,11 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:gen
-      # next build が型を生成する(next-env.d.ts は git 管理外)。ダミー値でよい(実キーは不要)
+      # next build が型を生成する(next-env.d.ts は git 管理外)ので、typecheck より先に実行する
       - run: pnpm --filter @app/web build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_dummy
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
-      # Playwright スモークは apps/web 導入後(フェーズ 4〜5)に追加する
+      - run: pnpm exec playwright install --with-deps chromium
+      # スモーク(認証不要)のみ。通しテスト(flow)は E2E_EMAIL / E2E_PASSWORD が無いのでスキップされる
+      - run: pnpm test:e2e
