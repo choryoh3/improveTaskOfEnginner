@@ -1,6 +1,2 @@
-import type { DbTarget } from '@app/shared'
-
-export function resolveDbTarget(value = process.env.DB_TARGET): DbTarget {
-  if (value === 'postgres') return 'postgres'
-  return 'sqlite'
-}
+export { createDb, getDb, resolveDbTarget } from './client'
+export type { Db, DbOptions } from './client'

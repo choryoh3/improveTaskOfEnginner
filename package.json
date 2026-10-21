@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "db:gen": "pnpm --filter @app/db gen"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -20,7 +21,6 @@
     "prettier": "^3.9.10",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.0",
-    "vitest": "^5.0.5",
-    "zod": "^4.6.7"
+    "vitest": "^5.0.5"
   }
 }

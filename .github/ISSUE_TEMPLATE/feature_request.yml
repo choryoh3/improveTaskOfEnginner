@@ -1,0 +1,16 @@
+name: 機能要望・フィードバック
+description: こんな機能がほしい、ここが使いにくい
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 困っていること
+      description: 日々の業務で、どんな場面で何に困っていますか?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: こうなってほしい
+      description: アイデアがあれば教えてください(なくても構いません)。

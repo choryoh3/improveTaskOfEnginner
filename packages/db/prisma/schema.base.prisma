@@ -1,0 +1,111 @@
+// schema の原本。手編集するのはこのファイルだけ。
+// `pnpm db:gen` が __PROVIDER__ / __OUTPUT__ を置換して provider 別 schema を生成する。
+// 両 DB 互換の型のみ使う(enum・配列・Json は禁止)。接続 URL は prisma.config.ts 側で指定する。
+
+generator client {
+  provider = "prisma-client"
+  output   = "__OUTPUT__"
+}
+
+datasource db {
+  provider = "__PROVIDER__"
+}
+
+// userId は Supabase Auth のユーザー ID(auth.users.id)。FK は張らず、リポジトリ層で必ず条件に含める。
+
+model Area {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  color     String   @default("#6366f1")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tasks     Task[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model Task {
+  id            String         @id @default(cuid())
+  userId        String
+  areaId        String?
+  area          Area?          @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  title         String
+  notes         String?
+  // todo | doing | blocked | done(zod で検証)
+  status        String         @default("todo")
+  // 0(低)〜3(緊急)
+  priority      Int            @default(1)
+  estimateMin   Int?
+  dueDate       DateTime?
+  position      Float          @default(0)
+  completedAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  tags          TaskTag[]
+  focusSessions FocusSession[]
+
+  @@index([userId, status])
+  @@index([userId, dueDate])
+  @@index([userId, areaId])
+}
+
+model Tag {
+  id       String       @id @default(cuid())
+  userId   String
+  name     String
+  tasks    TaskTag[]
+  snippets SnippetTag[]
+
+  @@unique([userId, name])
+}
+
+model TaskTag {
+  taskId String
+  tagId  String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, tagId])
+  @@index([tagId])
+}
+
+model FocusSession {
+  id         String    @id @default(cuid())
+  userId     String
+  taskId     String?
+  task       Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  // focus | break(zod で検証)
+  kind       String    @default("focus")
+  plannedSec Int       @default(1500)
+  startedAt  DateTime  @default(now())
+  endedAt    DateTime?
+  durationSec Int      @default(0)
+
+  @@index([userId, startedAt])
+  @@index([taskId])
+}
+
+model Snippet {
+  id        String       @id @default(cuid())
+  userId    String
+  title     String
+  body      String
+  language  String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  tags      SnippetTag[]
+
+  @@index([userId, updatedAt])
+}
+
+model SnippetTag {
+  snippetId String
+  tagId     String
+  snippet   Snippet @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([snippetId, tagId])
+  @@index([tagId])
+}

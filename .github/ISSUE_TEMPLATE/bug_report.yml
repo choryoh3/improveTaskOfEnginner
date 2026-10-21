@@ -1,0 +1,25 @@
+name: バグ報告
+description: 動作がおかしい・期待と違う
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: 何が起きましたか?
+      description: 期待した動作と、実際の動作を教えてください。
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: 環境
+      placeholder: OS / ブラウザ / Node のバージョンなど

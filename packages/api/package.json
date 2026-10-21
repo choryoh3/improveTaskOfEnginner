@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@app/db": "workspace:*",
-    "@app/shared": "workspace:*"
+    "@app/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.118.0"
   }
 }
