@@ -49,7 +49,7 @@ export function OverviewView() {
             />
             <Kpi
               icon={CalendarClock}
-              label="今週が期限の見積もり"
+              label="今週の計画"
               value={data && formatMinutes(data.week.plannedMin)}
             />
             <Kpi

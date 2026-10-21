@@ -10,7 +10,6 @@
   "include": [
     "next-env.d.ts",
     "next.config.ts",
-    "proxy.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
     ".next/types/**/*.ts",

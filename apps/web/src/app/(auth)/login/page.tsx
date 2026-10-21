@@ -26,7 +26,7 @@ export default function LoginPage() {
           <LogoMark className="[&_rect:first-child]:fill-white/20" />
           <span className="text-lg font-semibold tracking-tight">improveTaskOfEnginner</span>
         </div>
-        <div className="relative max-w-md space-y-8">
+        <div className="relative max-w-lg space-y-8">
           <h1 className="text-4xl leading-tight font-bold tracking-tight">
             エンジニアの一日を、
             <br />

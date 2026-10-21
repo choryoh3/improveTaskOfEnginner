@@ -3,8 +3,9 @@ import { defineConfig } from 'prisma/config'
 
 // Prisma 7: 接続 URL は schema ではなくここで指定する(CLI 用)。実行時の接続は src/client.ts のアダプターが担う。
 // DB_TARGET で schema・migrations・接続先を切り替える。
+// 環境変数の置き場所は apps/web/.env.local に一本化する(Next.js もここを読む)。
+config({ path: '../../apps/web/.env.local', quiet: true })
 config({ path: '../../.env.local', quiet: true })
-config({ path: '../../.env', quiet: true })
 
 const target = process.env.DB_TARGET === 'postgres' ? 'postgres' : 'sqlite'
 

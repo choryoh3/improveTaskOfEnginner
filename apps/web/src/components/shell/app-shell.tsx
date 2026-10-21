@@ -159,7 +159,7 @@ function MobileNav() {
             )}
           >
             <item.icon className="size-5" />
-            {item.label.length > 5 ? item.label.slice(0, 2) : item.label}
+            {item.shortLabel}
           </Link>
         )
       })}

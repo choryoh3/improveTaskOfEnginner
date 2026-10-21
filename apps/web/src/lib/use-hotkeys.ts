@@ -27,8 +27,8 @@ export function useHotkeys(hotkeys: Hotkeys) {
       return
     }
     if (event.metaKey || event.ctrlKey || event.altKey || isTyping(event.target)) return
-    // ダイアログが開いている間は、背景のショートカットを発火させない
-    if (document.querySelector('[role="dialog"]')) return
+    // ダイアログが開いている間は、背景のショートカットを発火させない(閉じる途中のものは数えない)
+    if (document.querySelector('[role="dialog"][data-state="open"]')) return
 
     const key = event.key.toLowerCase()
     if (state.pending) {

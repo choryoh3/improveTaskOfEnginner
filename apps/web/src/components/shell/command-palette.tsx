@@ -107,12 +107,15 @@ export function CommandPalette() {
       </div>
 
       <Command.List className="max-h-[min(24rem,60dvh)] overflow-y-auto p-2">
-        <Command.Empty className="px-3 py-8 text-center text-sm text-muted-foreground">
-          見つかりませんでした。
-        </Command.Empty>
+        {!text && (
+          <Command.Empty className="px-3 py-8 text-center text-sm text-muted-foreground">
+            見つかりませんでした。
+          </Command.Empty>
+        )}
 
         {text && (
           <Command.Group
+            forceMount
             heading="タスク"
             className="pb-1 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground"
           >
