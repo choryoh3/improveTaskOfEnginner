@@ -1,4 +1,4 @@
-import { getDb as defaultGetDb, type Db } from '@app/db'
+import { getDb as defaultGetDb, resolveDbTarget, type Db } from '@app/db'
 import { reportQuerySchema } from '@app/shared'
 import { Hono } from 'hono'
 import type { TokenVerifier } from './auth/verify'
@@ -29,6 +29,7 @@ export interface AppOptions {
 export function createApp(options: AppOptions) {
   const now = options.now ?? (() => new Date())
   const tzOffsetMin = options.tzOffsetMin ?? 0
+  const getDb = options.getDb ?? defaultGetDb
 
   return (
     new Hono<AppEnv>()
@@ -36,10 +37,20 @@ export function createApp(options: AppOptions) {
       .onError(handleError)
       // 認証不要(死活監視用)。`use` より前に登録するため、認証の対象外になる。
       .get('/health', (c) => c.json({ ok: true }, 200))
-      .use(
-        '*',
-        authenticate({ ...options, getDb: options.getDb ?? defaultGetDb, now, tzOffsetMin }),
-      )
+      // DB との疎通確認(デプロイ後の確認用)。接続情報や詳細なエラーは返さない。
+      .get('/health/db', async (c) => {
+        const target = resolveDbTarget()
+        try {
+          await (
+            await getDb()
+          ).$queryRaw`select 1`
+          return c.json({ ok: true, db: 'up' as const, target }, 200)
+        } catch (error) {
+          console.error('DB health check failed:', error)
+          return c.json({ ok: false, db: 'down' as const, target }, 503)
+        }
+      })
+      .use('*', authenticate({ ...options, getDb, now, tzOffsetMin }))
       .route('/areas', areaRoutes)
       .route('/tasks', taskRoutes)
       .route('/focus', focusRoutes)

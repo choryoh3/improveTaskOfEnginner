@@ -1,7 +1,7 @@
 import { createTestDb, type TestDb } from '@app/db/testing'
 import type { Task } from '@app/shared'
 import { hc } from 'hono/client'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { createApp, type App } from './app'
 import type { TokenVerifier } from './auth/verify'
 
@@ -56,6 +56,32 @@ describe('authentication', () => {
     }
     const bad = await app.request('/api/tasks', { headers: { Authorization: 'Bearer invalid' } })
     expect(bad.status).toBe(401)
+  })
+})
+
+describe('/health/db', () => {
+  it('reports the database as up without authentication', async () => {
+    expect(await call(null, 'GET', '/health/db')).toEqual({
+      status: 200,
+      body: { ok: true, db: 'up', target: 'sqlite' },
+    })
+  })
+
+  it('returns 503 without leaking details when the database is unreachable', async () => {
+    const broken = createApp({
+      verifyToken,
+      getDb: async () => {
+        throw new Error('connect ECONNREFUSED postgres://user:secret@host/db')
+      },
+    })
+    const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const res = await broken.request('/api/health/db')
+    quiet.mockRestore()
+
+    expect(res.status).toBe(503)
+    const text = await res.text()
+    expect(JSON.parse(text)).toEqual({ ok: false, db: 'down', target: 'sqlite' })
+    expect(text).not.toContain('secret')
   })
 })
 
