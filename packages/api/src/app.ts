@@ -3,6 +3,7 @@ import { reportQuerySchema } from '@app/shared'
 import { Hono } from 'hono'
 import type { TokenVerifier } from './auth/verify'
 import type { AppEnv } from './env'
+import { describeDatabaseUrl } from './diagnostics'
 import { handleError } from './errors'
 import { authenticate } from './middleware/auth'
 import { areaRoutes } from './routes/areas'
@@ -47,7 +48,12 @@ export function createApp(options: AppOptions) {
           return c.json({ ok: true, db: 'up' as const, target }, 200)
         } catch (error) {
           console.error('DB health check failed:', error)
-          return c.json({ ok: false, db: 'down' as const, target }, 503)
+          // 開発中だけ、アプリが受け取った接続先(パスワードを除く)を添える。本番では返さない。
+          const connection =
+            process.env.NODE_ENV !== 'production' && target === 'postgres'
+              ? { connection: describeDatabaseUrl(process.env.DATABASE_URL) }
+              : {}
+          return c.json({ ok: false, db: 'down' as const, target, ...connection }, 503)
         }
       })
       .use('*', authenticate({ ...options, getDb, now, tzOffsetMin }))
