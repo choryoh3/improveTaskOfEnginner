@@ -34,14 +34,31 @@
 
 ### 1-2. 接続文字列
 
-Project Settings → Database → Connection string から取得する。
+**取得方法**: Supabase のプロジェクト画面の上部にある **Connect** ボタンを押し、
+Connection String の方式(Method)で **Transaction pooler** を選ぶ。
 
 | 環境変数       | 使う接続                        | 用途                                |
 | -------------- | ------------------------------- | ----------------------------------- |
 | `DATABASE_URL` | Transaction pooler(ポート 6543) | アプリの実行時(Vercel)              |
 | `DIRECT_URL`   | Direct / Session pooler         | マイグレーション作成などの CLI 作業 |
 
-サーバーレスでは接続数が増えやすいので、実行時はプーラー経由にする。
+Transaction pooler の形式は、次のとおり。
+
+```
+postgres://postgres.<project-ref>:[YOUR-PASSWORD]@aws-<region>.pooler.supabase.com:6543/postgres
+```
+
+- ユーザー名は `postgres` ではなく **`postgres.<project-ref>`**(ドット区切り)。画面の文字列をそのままコピーすれば間違えない。
+- `[YOUR-PASSWORD]` は、プロジェクト作成時に決めた**データベースのパスワード**に置き換える(ログイン用のパスワードとは別物)。
+  忘れた場合は、プロジェクトの Database 設定から再設定できる。
+- パスワードに `@` `:` `/` `#` `?` `%` などの記号が入っていると、**URL エンコードが必要**(例: `@` → `%40`)。接続エラーの定番の原因。
+- サーバーレスでは接続数が増えやすいので、実行時はプーラー経由にする。
+  Shared pooler は IPv4 で接続できる。Direct(`db.<project-ref>.supabase.co`)は IPv6 で、IPv4 のみの環境(Vercel や GitHub Actions など)からは、アドオン無しでは繋がらない。
+- Transaction mode は**プリペアドステートメントに対応しない**(Supabase のドキュメントの注意)。
+  このアプリの接続(`@prisma/adapter-pg`)が問題なく動くかは**未検証**。`prepared statement ... does not exist` のようなエラーが出たら、
+  Session pooler(ポート 5432)に切り替えて切り分ける。
+
+> 接続文字列にはパスワードが入っている。チャットや Issue に貼らず、`apps/web/.env.local` や Vercel の環境変数(Sensitive)にだけ書く。
 
 ### 1-3. マイグレーションの適用(本番 DB)
 
