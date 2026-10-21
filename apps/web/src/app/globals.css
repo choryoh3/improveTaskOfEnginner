@@ -1,0 +1,166 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* デザイントークン: 色・角丸・影・モーションはここだけで定義する。ライト/ダーク両対応。 */
+:root {
+  --radius: 0.75rem;
+
+  --background: oklch(0.985 0.004 265);
+  --foreground: oklch(0.21 0.025 265);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.025 265);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.025 265);
+  --muted: oklch(0.962 0.007 265);
+  --muted-foreground: oklch(0.49 0.025 265);
+  --border: oklch(0.915 0.01 265);
+  --input: oklch(0.89 0.012 265);
+  --ring: oklch(0.55 0.22 275);
+
+  --primary: oklch(0.52 0.23 275);
+  --primary-foreground: oklch(0.99 0.005 275);
+  --accent: oklch(0.95 0.035 275);
+  --accent-foreground: oklch(0.32 0.15 275);
+  --destructive: oklch(0.55 0.22 25);
+
+  --success: oklch(0.55 0.15 160);
+  --warning: oklch(0.62 0.15 70);
+  --info: oklch(0.55 0.17 245);
+
+  --shadow-soft: 0 1px 2px oklch(0.2 0.03 265 / 0.05), 0 4px 16px -4px oklch(0.2 0.03 265 / 0.08);
+  --shadow-pop: 0 8px 32px -8px oklch(0.2 0.05 275 / 0.25);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark {
+  --background: oklch(0.155 0.02 270);
+  --foreground: oklch(0.965 0.006 265);
+  --card: oklch(0.2 0.022 270);
+  --card-foreground: oklch(0.965 0.006 265);
+  --popover: oklch(0.22 0.024 270);
+  --popover-foreground: oklch(0.965 0.006 265);
+  --muted: oklch(0.255 0.022 270);
+  --muted-foreground: oklch(0.72 0.02 265);
+  --border: oklch(0.3 0.025 270);
+  --input: oklch(0.34 0.028 270);
+  --ring: oklch(0.7 0.17 275);
+
+  --primary: oklch(0.72 0.16 275);
+  --primary-foreground: oklch(0.16 0.03 275);
+  --accent: oklch(0.28 0.06 275);
+  --accent-foreground: oklch(0.9 0.05 275);
+  --destructive: oklch(0.7 0.19 25);
+
+  --success: oklch(0.74 0.15 160);
+  --warning: oklch(0.8 0.15 80);
+  --info: oklch(0.74 0.14 245);
+
+  --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.3), 0 4px 16px -4px oklch(0 0 0 / 0.4);
+  --shadow-pop: 0 8px 32px -8px oklch(0 0 0 / 0.6);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 3px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+
+  --shadow-soft: var(--shadow-soft);
+  --shadow-pop: var(--shadow-pop);
+
+  --font-sans: var(--font-inter), var(--font-jp), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', Menlo, Consolas, monospace;
+
+  --animate-fade-up: fade-up 0.4s var(--ease-out-expo) both;
+  --animate-pop: pop 0.35s var(--ease-out-expo) both;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings:
+      'palt' 0,
+      'tnum' 0;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 25%, transparent);
+  }
+}
+
+/* 動きを減らす設定を尊重する */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes confetti {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--x), calc(var(--y) + 80px)) rotate(var(--r)) scale(0.6);
+  }
+}

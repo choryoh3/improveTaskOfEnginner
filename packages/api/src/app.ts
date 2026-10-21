@@ -1,4 +1,4 @@
-import type { Db } from '@app/db'
+import { getDb as defaultGetDb, type Db } from '@app/db'
 import { reportQuerySchema } from '@app/shared'
 import { Hono } from 'hono'
 import type { TokenVerifier } from './auth/verify'
@@ -15,7 +15,8 @@ import { validate } from './validate'
 
 export interface AppOptions {
   verifyToken: TokenVerifier
-  getDb: () => Promise<Db>
+  /** 省略時は @app/db の getDb(DB_TARGET で SQLite / Postgres を切替) */
+  getDb?: () => Promise<Db>
   now?: () => Date
   /** 「今日」「今週」の境界に使う固定オフセット(分)。JST は 540。既定は 0(UTC) */
   tzOffsetMin?: number
@@ -35,7 +36,10 @@ export function createApp(options: AppOptions) {
       .onError(handleError)
       // 認証不要(死活監視用)。`use` より前に登録するため、認証の対象外になる。
       .get('/health', (c) => c.json({ ok: true }, 200))
-      .use('*', authenticate({ ...options, now, tzOffsetMin }))
+      .use(
+        '*',
+        authenticate({ ...options, getDb: options.getDb ?? defaultGetDb, now, tzOffsetMin }),
+      )
       .route('/areas', areaRoutes)
       .route('/tasks', taskRoutes)
       .route('/focus', focusRoutes)

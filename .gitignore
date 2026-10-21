@@ -12,3 +12,5 @@ coverage/
 .DS_Store
 packages/db/prisma/generated/
 packages/db/src/generated/
+next-env.d.ts
+*.tsbuildinfo
