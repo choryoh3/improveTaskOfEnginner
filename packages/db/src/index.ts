@@ -1,2 +1,5 @@
 export { createDb, getDb, resolveDbTarget } from './client'
 export type { Db, DbOptions } from './client'
+export { ConflictError, InvalidReferenceError, NotFoundError } from './errors'
+export { createRepositories } from './repositories'
+export type { Repositories, RepositoryOptions, TaskSummaryRow } from './repositories'

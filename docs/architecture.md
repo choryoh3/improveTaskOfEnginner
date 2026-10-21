@@ -34,3 +34,17 @@ Prisma 7 の制約に合わせた構成:
 1. Hono ミドルウェアが JWT を検証して `userId` を確定(401)
 2. リポジトリ層が全クエリに `userId` を付与(他人のデータは 404)
 3. 本番のみ: RLS 有効化 + `anon`/`authenticated` の権限剥奪(`20261020000001_enable_rls`)。アプリの DB 接続はオーナーロールで RLS をバイパスするため、Data API 経由の直接アクセスを塞ぐ多層防御として機能する
+
+## API(Hono)
+
+- `createApp({ verifyToken, getDb, now, tzOffsetMin })` が依存を引数で受け取る。テストは偽の `verifyToken` と一時 SQLite を渡す。
+- ルートはメソッドチェーンで定義し、`App` 型を `hc` クライアントへ公開する(`/api` 配下)。`/api/health` のみ認証不要。
+- 認証ミドルウェアが JWT を検証し、`userId` 束縛済みの `repos` をコンテキストに載せる。ハンドラーは `c.var.repos` だけを使い、`userId` を直接扱わない。
+- エラーは `{ error: { code, message } }` に統一: 401 `unauthorized` / 404 `not_found`(他ユーザーのデータも 404)/ 400 `validation_error` / 409 `conflict` / 500 `internal_error`。
+- エンドポイント: `areas` `tasks` `focus`(`active` `start` `:id/stop`)`snippets` `overview` `reports?type=daily|weekly&date=`
+
+## 既知の制約
+
+- 検索(`q`)の大文字小文字は DB 依存(SQLite の LIKE は ASCII を区別しない、Postgres は区別する)。両 DB 互換のため `mode: 'insensitive'` は使わない。
+- 「今日」「今週」は固定オフセット(`APP_TZ_OFFSET_MIN`)で決める。DST のあるタイムゾーンは未対応。
+- Postgres 向けの統合テストは未実施(型チェックと SQL 生成まで)。

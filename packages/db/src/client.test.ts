@@ -1,9 +1,6 @@
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createDb, resolveDbTarget, type Db } from './client'
+import { createTestDb, type TestDb } from './testing'
 
 describe('resolveDbTarget', () => {
   it('defaults to sqlite', () => {
@@ -29,37 +26,16 @@ describe('createDb', () => {
 })
 
 describe('sqlite schema (migrations applied to a temp db)', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'ite-db-'))
-  const url = `file:${join(dir, 'test.db').replaceAll('\\', '/')}`
+  let testDb: TestDb
   let db: Db
 
-  // prisma CLI の起動が環境によって非常に遅いため、コミット済みの migration.sql を接続経由で直接適用する
   beforeAll(async () => {
-    db = await createDb({ target: 'sqlite', sqliteUrl: url })
-    const migrationsDir = resolve(
-      dirname(fileURLToPath(import.meta.url)),
-      '../prisma/migrations/sqlite',
-    )
-    const names = readdirSync(migrationsDir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name)
-      .sort()
-    for (const name of names) {
-      const sql = readFileSync(join(migrationsDir, name, 'migration.sql'), 'utf8')
-      const statements = sql
-        .split(/\r?\n/)
-        .filter((line) => !line.trim().startsWith('--'))
-        .join(' ')
-        .split(';')
-        .map((statement) => statement.trim())
-        .filter(Boolean)
-      for (const statement of statements) await db.$executeRawUnsafe(statement)
-    }
+    testDb = await createTestDb()
+    db = testDb.db
   }, 30_000)
 
   afterAll(async () => {
-    await db?.$disconnect()
-    rmSync(dir, { recursive: true, force: true })
+    await testDb?.cleanup()
   })
 
   it('allows the same area name for different users but not for the same user', async () => {
