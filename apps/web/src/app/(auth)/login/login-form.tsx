@@ -11,6 +11,17 @@ import { cn } from '@/lib/utils'
 
 type Mode = 'signin' | 'signup'
 
+// Supabase のエラーコードごとの文言
+const CODE_MESSAGES: Record<string, string> = {
+  signup_disabled: '現在、新規登録は受け付けていません。',
+  email_not_confirmed:
+    'メールアドレスの確認が済んでいません。届いたメールのリンクを開いてください。',
+  over_email_send_rate_limit:
+    'メールの送信回数の上限に達しました。しばらく待ってからやり直してください。',
+  email_address_invalid: 'このメールアドレスは利用できません。別のアドレスをお試しください。',
+  weak_password: 'パスワードが弱すぎます。より長く、推測されにくいものにしてください。',
+}
+
 const MESSAGES: Record<string, string> = {
   'Invalid login credentials': 'メールアドレスまたはパスワードが正しくありません。',
   'User already registered': 'このメールアドレスはすでに登録されています。ログインしてください。',
@@ -52,7 +63,11 @@ export function LoginForm() {
       router.refresh()
     } catch (e) {
       const message = e instanceof Error ? e.message : '認証に失敗しました'
-      setError(MESSAGES[message] ?? message)
+      const code =
+        typeof e === 'object' && e !== null && 'code' in e
+          ? String((e as { code: unknown }).code)
+          : ''
+      setError(CODE_MESSAGES[code] ?? MESSAGES[message] ?? message)
     } finally {
       setPending(false)
     }
