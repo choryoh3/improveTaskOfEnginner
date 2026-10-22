@@ -40,5 +40,5 @@ DB: dev=SQLite, prod=Supabase Postgres(`DB_TARGET=sqlite|postgres`)/ pnpm monore
 
 - 領域別ルール: `.claude/rules/`(frontend / api / db / testing / ui)
 - 手順: `.claude/skills/`、専門担当: `.claude/agents/`
-- 設計メモ: `docs/`(architecture / deploy / roadmap)
+- 仕様・設計メモ: `docs/`(specs=仕様と構成図 / architecture / deploy / roadmap)
 - MVP 外の機能は実装せず `docs/roadmap.md` に書く。

@@ -31,12 +31,12 @@ packages/db      Prisma・DB 切替・リポジトリ層(全クエリに userId)
 packages/shared  zod スキーマ・共通型(Front/API の契約)
 packages/config  tsconfig の共有設定
 e2e              Playwright(スモーク + 通しテスト)
-docs             architecture / deploy / roadmap
+docs             specs / architecture / deploy / roadmap
 .claude          Claude Code 用の設定(rules / skills / agents / hooks)
 ```
 
 依存の向きは `apps/web → packages/api → packages/db / packages/shared` で、逆向きは禁止です。
-設計の詳細は [docs/architecture.md](docs/architecture.md) を参照してください。
+仕様(画面・API・データ・構成図)は [docs/specs.md](docs/specs.md)、設計の詳細は [docs/architecture.md](docs/architecture.md) を参照してください。
 
 ## はじめかた(ローカル開発)
 
